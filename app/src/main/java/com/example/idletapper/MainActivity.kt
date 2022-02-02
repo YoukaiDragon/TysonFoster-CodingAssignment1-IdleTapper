@@ -22,16 +22,18 @@ class MainActivity : AppCompatActivity() {
 
     val handler = Handler()
 
+    //call idleTapping() 1 second later
     fun idleWait() {
         handler.postDelayed(::idleTapping, 1000)
     }
 
+    //passively increment the tapCount based on idlePower
     fun idleTapping() {
         val tapCountDisplay : TextView = findViewById(R.id.tapCounter)
         tapCount += idlePower
         tapCountDisplay.text = "$tapCount TAPS"
         Log.v(TAG, "idle tapping")
-        idleWait()
+        idleWait() //run this function again 1 second later
     }
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +44,22 @@ class MainActivity : AppCompatActivity() {
         val tapCountDisplay : TextView = findViewById(R.id.tapCounter)
         val tapPowerDisplay : TextView = findViewById(R.id.tapPowerText)
         val idlePowerDisplay : TextView = findViewById(R.id.idlePowerText)
+
+        //load the saved instance state if one exists
+        if (savedInstanceState != null) {
+            with(savedInstanceState) {
+                tapCount = getInt(STATE_TAPS)
+                tapPower = getInt(STATE_TAPPOW)
+                idlePower = getInt(STATE_IDLEPOW)
+                powerUpgradeCost = getInt(STATE_POWUP)
+                idleUpgradeCost = getInt(STATE_IDLEUP)
+            }
+
+            //set teh text displays with the loaded values
+            tapCountDisplay.text = "$tapCount TAPS"
+            tapPowerDisplay.text = "Tap Power: $tapPower"
+            idlePowerDisplay.text = "Idle Power: $idlePower"
+        }
 
         val tapButton : Button = findViewById(R.id.tapButton)
         tapButton.setOnClickListener {
@@ -68,9 +86,28 @@ class MainActivity : AppCompatActivity() {
                 tapCountDisplay.text = "$tapCount TAPS"
             }
         }
-        //TODO Add code to increment tapCount by idleTap every second
         //TODO Prevent Variable reset on device orientation change
 
         idleWait()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState?.run {
+            putInt(STATE_TAPS, tapCount)
+            putInt(STATE_TAPPOW, tapPower)
+            putInt(STATE_IDLEPOW, idlePower)
+            putInt(STATE_POWUP, powerUpgradeCost)
+            putInt(STATE_IDLEUP, idleUpgradeCost)
+        }
+
+    }
+
+    companion object {
+        val STATE_TAPS = "tapCount"
+        val STATE_TAPPOW = "tapPower"
+        val STATE_IDLEPOW = "idlePower"
+        val STATE_POWUP = "powerUpgradeCost"
+        val STATE_IDLEUP = "idleUpgradeCost"
     }
 }
