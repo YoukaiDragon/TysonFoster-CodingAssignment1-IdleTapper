@@ -1,17 +1,23 @@
 package com.example.idletapper
 
-import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.util.Log.VERBOSE
 import android.widget.Button
 import android.widget.TextView
 import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
-    @SuppressLint("SetTextI18n")
+//Don't use linter suppression - solve the issues instead!
+
+    companion object { //We'll usually put companion objects at the top of the class
+        val STATE_TAPS = "tapCount"
+        val STATE_TAPPOW = "tapPower"
+        val STATE_IDLEPOW = "idlePower"
+        val STATE_POWUP = "powerUpgradeCost"
+        val STATE_IDLEUP = "idleUpgradeCost"
+    }
 
     val TAG = "mainActivity"
 
@@ -21,21 +27,7 @@ class MainActivity : AppCompatActivity() {
     var powerUpgradeCost = 10
     var idleUpgradeCost = 20
 
-    private val handler = Handler()
-
-    //call idleTapping() 1 second later
-    private fun idleWait() {
-        handler.postDelayed(::idleTapping, 1000)
-    }
-
-    //passively increment the tapCount based on idlePower
-    private fun idleTapping() {
-        val tapCountDisplay: TextView = findViewById(R.id.tapCounter)
-        tapCount += idlePower
-        tapCountDisplay.text = "$tapCount TAPS"
-        Log.v(TAG, "idle tapping")
-        idleWait() //run this function again 1 second later
-    }
+    private val handler = Handler() //Be careful with the use of deprecated classes and methods
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +43,11 @@ class MainActivity : AppCompatActivity() {
         val tapButton: Button = findViewById(R.id.tapButton)
         tapButton.setOnClickListener {
             tapCount += tapPower
-            tapCountDisplay.text = "$tapCount TAPS"
+            tapCountDisplay.text = getString(R.string.idle_taps, tapCount) //Always extract hardcoded strings to the strings.xml file
         }
 
         //button for user to increase number of taps gained per click of tapButton
-        val powerUpgradeButton: Button = findViewById(R.id.tapUpgrade)
+        val powerUpgradeButton: Button = findViewById(R.id.upgrade_button)
         powerUpgradeButton.setOnClickListener {
             //spend taps to upgrade tapPower if the user has enough
             if (tapCount >= powerUpgradeCost) {
@@ -63,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                 tapPower += 1
                 powerUpgradeCost = (powerUpgradeCost * 1.15).roundToInt()
                 //update the display
-                tapPowerDisplay.text = "Tap Power: $tapPower"
+                tapPowerDisplay.text = "Tap Power: $tapPower" //Left these for you as an exercise; you should treat all strings the same as above.
                 tapCountDisplay.text = "$tapCount TAPS"
                 powerUpgradeButton.text = "UPGRADE TAP COST: $powerUpgradeCost"
             }
@@ -73,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         val idleUpgradeButton: Button = findViewById(R.id.idleUpgrade)
         idleUpgradeButton.setOnClickListener {
             //spend taps to upgrade idleTap if the user has enough
-            if (tapCount >= idleUpgradeCost) {
+            if (tapCount >= idleUpgradeCost) { //This is a good example of duplicated code that you could deal with by extracting a function, although the approach used here is fine for now. Next assignment I would expect you to avoid duplicated code as much as possible
                 tapCount -= idleUpgradeCost
                 idlePower += 1
                 idleUpgradeCost = (idleUpgradeCost * 1.15).roundToInt()
@@ -85,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         }
         //load the saved instance state if one exists
         if (savedInstanceState != null) {
-            with(savedInstanceState) {
+            with(savedInstanceState) { //Great work figuring this out
                 tapCount = getInt(STATE_TAPS)
                 tapPower = getInt(STATE_TAPPOW)
                 idlePower = getInt(STATE_IDLEPOW)
@@ -116,11 +108,19 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    companion object {
-        val STATE_TAPS = "tapCount"
-        val STATE_TAPPOW = "tapPower"
-        val STATE_IDLEPOW = "idlePower"
-        val STATE_POWUP = "powerUpgradeCost"
-        val STATE_IDLEUP = "idleUpgradeCost"
+    //We'll usually put private methods at the bottom of the file
+
+    //call idleTapping() 1 second later
+    private fun idleWait() {
+        handler.postDelayed(::idleTapping, 1000)
+    }
+
+    //passively increment the tapCount based on idlePower
+    private fun idleTapping() {
+        val tapCountDisplay: TextView = findViewById(R.id.tapCounter)
+        tapCount += idlePower
+        tapCountDisplay.text = getString(R.string.idle_taps, tapCount)
+        Log.v(TAG, "idle tapping")
+        idleWait() //run this function again 1 second later
     }
 }
