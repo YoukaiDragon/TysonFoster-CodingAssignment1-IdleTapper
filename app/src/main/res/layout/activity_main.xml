@@ -6,13 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+<!--    Note the change to snake_case for IDs. This is a more idiomatic approach -->
+<!--    Note also the extracted string resource in the first Button - this should be done for all views-->
+<!--    The width and height choices look fairly arbitrary - this is going to bite you if you try to load this app on a small screen. Better to no define them unless necessary, and rarely should you define width and height large enough to cause problems on smaller screens - such as with the main tap button. -->
     <Button
-        android:id="@+id/tapUpgrade"
+        android:id="@+id/upgrade_button"
         android:layout_width="163dp"
         android:layout_height="101dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Upgrade Tap"
+        android:text="@string/upgrade_tap"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
